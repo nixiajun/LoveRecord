@@ -9,7 +9,7 @@
 
 ### 方式 A：整站 Docker（Postgres + 后端 + 前端）
 
-1. 准备环境变量：`cp .env.example .env`，填写 **JWT_SECRET**、**LLM/Embedding** 等（`DATABASE_URL` 在容器内会被 Compose 覆盖为指向 `postgres` 服务）。
+1. 准备环境变量：`cp .env.example .env`，修改config.py，填写 **JWT_SECRET**、**LLM/Embedding** 等（`DATABASE_URL` 在容器内会被 Compose 覆盖为指向 `postgres` 服务）。
 
 2. 构建并启动：
 
@@ -37,6 +37,7 @@ docker compose up -d postgres
 
 ```bash
 cd backend
+修改config.py
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
