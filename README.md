@@ -1,3 +1,4 @@
+
 # 恋爱记录网站 + 微信 Bot 问答系统（MVP）
 
 单体架构：`backend`（FastAPI）+ `frontend`（Next.js 15）+ 可选独立 worker 进程。
@@ -72,3 +73,7 @@ npm run dev
 - **密钥与密码**只放在本地 `.env` /环境变量中；仓库内仅保留 `.env.example` 占位。
 - 默认 `config.py` 中 **LLM / Embedding API Key 为空**，须在部署环境配置。
 - 种子用户邮箱为 `example.local` 域名示例；生产请设置 `SEED_ADMIN_PASSWORD` / `SEED_PARTNER_PASSWORD`。
+=======
+# LoveRecord-
+一个python的agent项目，留存情侣间的美好回忆，拥有智能小助手可以根据聊天记录回答问题，还可以多agent生成日报，周报，月报。
+
