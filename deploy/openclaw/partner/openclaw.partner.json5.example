@@ -1,0 +1,42 @@
+// openclaw-gateway-partner：与 me 网关对称，仅 bot / 微信账号 / workspace 不同
+
+{
+  gateway_name: "openclaw-gateway-partner",
+  channel: {
+    account: "PLACEHOLDER_WECHAT_PARTNER",
+    type: "wechat",
+  },
+  agent: {
+    name: "loverecord_partner",
+    workspace: "loverecord_partner_ws",
+    system_prompt_addendum: "你是恋爱记录助手；必须通过 Tools 调用 LoveRecord 后端，不得臆造。",
+  },
+  http_tools: {
+    base_url: "${LOVE_BACKEND_URL}",
+    common_headers: {
+      Authorization: "Bearer ${LOVE_BACKEND_INTERNAL_TOKEN}",
+    },
+    tools: [
+      { name: "love_query_history", method: "POST", path: "/api/v1/openclaw/tools/query-history" },
+      { name: "love_timeline_lookup", method: "POST", path: "/api/v1/openclaw/tools/timeline" },
+      { name: "love_get_daily_summary", method: "POST", path: "/api/v1/openclaw/tools/daily-summary" },
+      { name: "love_get_weekly_summary", method: "POST", path: "/api/v1/openclaw/tools/weekly-summary" },
+      { name: "love_get_monthly_summary", method: "POST", path: "/api/v1/openclaw/tools/monthly-summary" },
+      { name: "love_generate_daily_report", method: "POST", path: "/api/v1/openclaw/tools/generate-daily-report" },
+      { name: "love_generate_weekly_report", method: "POST", path: "/api/v1/openclaw/tools/generate-weekly-report" },
+      { name: "love_generate_monthly_report", method: "POST", path: "/api/v1/openclaw/tools/generate-monthly-report" },
+      { name: "love_get_today_status", method: "GET", path: "/api/v1/openclaw/tools/today-status" },
+    ],
+  },
+  tool_defaults: {
+    body: { bot_id: "bot_partner" },
+    query: { bot_id: "bot_partner" },
+  },
+  hooks: {
+    inbound_webhook_token: "${OPENCLAW_PARTNER_HOOK_TOKEN}",
+    push_receive_url: "http://127.0.0.1:PLACEHOLDER_PARTNER_PORT/inbound/push",
+  },
+  security: {
+    disable_high_risk_tools: true,
+  },
+}

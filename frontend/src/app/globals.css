@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 温馨粉色系 */
+  --bg: #fef7f7;
+  --fg: #3d2c35;
+  --muted: #9b8a94;
+  --card: #ffffff;
+  --border: #f5e1e6;
+  --accent: #e8607a;
+  --accent-soft: #fce4ec;
+  --ring: #e8607a40;
+  --success: #6dbf8b;
+  --warm: #f9eee8;
+}
+
+.dark {
+  --bg: #1c1418;
+  --fg: #f3eaee;
+  --muted: #a89ba3;
+  --card: #261e24;
+  --border: #3d2f38;
+  --accent: #f48aa0;
+  --accent-soft: #3d1f2a;
+  --ring: #f48aa040;
+  --success: #6dbf8b;
+  --warm: #2a1f22;
+}
+
+body {
+  @apply min-h-screen antialiased;
+  background: var(--bg);
+  color: var(--fg);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* 全局滚动条美化 */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* 报表中心「导出 PDF」 */
+@media print {
+  body * { visibility: hidden; }
+  .report-print-area,
+  .report-print-area * { visibility: visible; }
+  .report-print-area { position: absolute; left: 0; top: 0; width: 100%; }
+  .report-print-area details > summary { display: none !important; }
+  .report-print-area details > *:not(summary) { display: block !important; }
+}

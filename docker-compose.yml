@@ -1,0 +1,64 @@
+# LoveRecord：Postgres(pgvector) + 后端 + 前端（无 Redis）
+#
+# 准备：cp .env.example .env 后填入 JWT、LLM/Embedding 密钥等；Docker 内数据库连接会由下方 environment 覆盖。
+#
+# 启动全部：docker compose up -d --build
+# 仅数据库（本地跑前后端）：docker compose up -d postgres
+# 首次种子：docker compose exec backend python -m app.seed
+#
+# 浏览器访问前端 http://localhost:3000 ，API http://localhost:8000/docs
+# （前端请求 API 使用构建参数 NEXT_PUBLIC_API_URL，默认 http://localhost:8000）
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: loverecord-postgres
+    environment:
+      POSTGRES_USER: loverecord
+      POSTGRES_PASSWORD: loverecord
+      POSTGRES_DB: loverecord
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - loverecord_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loverecord -d loverecord"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: loverecord-backend
+    env_file:
+      - ./.env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://loverecord:loverecord@postgres:5432/loverecord
+      UPLOAD_DIR: /app/data/uploads
+      # 浏览器访问前端 Origin，多个用逗号分隔
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - loverecord_uploads:/app/data/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    container_name: loverecord-web
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      - backend
+
+volumes:
+  loverecord_pgdata:
+  loverecord_uploads:

@@ -1,0 +1,45 @@
+// openclaw-gateway-me 配置示意（按你实际 OpenClaw 版本字段调整）
+// 共享：LOVE_BACKEND_URL、LOVE_BACKEND_INTERNAL_TOKEN、同一 PostgreSQL 中的 couple 数据
+// 隔离：微信 clawbot 账号、session/workspace、本文件内 channel / agent / hooks
+
+{
+  gateway_name: "openclaw-gateway-me",
+  channel: {
+    account: "PLACEHOLDER_WECHAT_ME",
+    type: "wechat",
+  },
+  agent: {
+    name: "loverecord_me",
+    workspace: "loverecord_me_ws",
+    system_prompt_addendum: "你是恋爱记录助手；所有事实查询必须通过 HTTP Tools 调用 LoveRecord 后端，不得臆造。",
+  },
+  http_tools: {
+    base_url: "${LOVE_BACKEND_URL}",
+    common_headers: {
+      Authorization: "Bearer ${LOVE_BACKEND_INTERNAL_TOKEN}",
+    },
+    tools: [
+      { name: "love_query_history", method: "POST", path: "/api/v1/openclaw/tools/query-history" },
+      { name: "love_timeline_lookup", method: "POST", path: "/api/v1/openclaw/tools/timeline" },
+      { name: "love_get_daily_summary", method: "POST", path: "/api/v1/openclaw/tools/daily-summary" },
+      { name: "love_get_weekly_summary", method: "POST", path: "/api/v1/openclaw/tools/weekly-summary" },
+      { name: "love_get_monthly_summary", method: "POST", path: "/api/v1/openclaw/tools/monthly-summary" },
+      { name: "love_generate_daily_report", method: "POST", path: "/api/v1/openclaw/tools/generate-daily-report" },
+      { name: "love_generate_weekly_report", method: "POST", path: "/api/v1/openclaw/tools/generate-weekly-report" },
+      { name: "love_generate_monthly_report", method: "POST", path: "/api/v1/openclaw/tools/generate-monthly-report" },
+      { name: "love_get_today_status", method: "GET", path: "/api/v1/openclaw/tools/today-status" },
+    ],
+  },
+  tool_defaults: {
+    body: { bot_id: "bot_me" },
+    query: { bot_id: "bot_me" },
+  },
+  hooks: {
+    inbound_webhook_token: "${OPENCLAW_ME_HOOK_TOKEN}",
+    // LoveRecord 主动推送（上传完成、定时任务）指向的接收 URL：
+    push_receive_url: "http://127.0.0.1:PLACEHOLDER_ME_PORT/inbound/push",
+  },
+  security: {
+    disable_high_risk_tools: true,
+  },
+}
