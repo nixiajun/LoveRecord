@@ -15,6 +15,7 @@ from app.models.user import User
 from app.schemas.smart_bot import SmartBotRequest, SmartBotResponse
 from app.services.agents.smart_bot_service import smart_bot_answer, smart_bot_stream
 from app.services.core.activity_log import log_activity
+from app.services.core.speaker_profile_service import build_profile_context
 from app.services.retrieval.retrieval_context import build_retrieval_context
 
 router = APIRouter(prefix="/smart-bot", tags=["smart-bot"])
@@ -50,6 +51,7 @@ def smart_bot_chat(
     identity = _identity_dict(body)
     now = _now_override(body)
     history = [{"role": m.role, "content": m.content} for m in body.conversation_history[-20:]]
+    pctx = build_profile_context(db, couple.id)
 
     if body.stream:
 
@@ -59,6 +61,7 @@ def smart_bot_chat(
                 identity=identity,
                 now_override=now,
                 conversation_history=history or None,
+                profile_context=pctx,
             ):
                 yield json.dumps(ev, ensure_ascii=False, default=str) + "\n"
             log_activity(
@@ -76,6 +79,7 @@ def smart_bot_chat(
         identity=identity,
         now_override=now,
         conversation_history=history or None,
+        profile_context=pctx,
     )
     log_activity(
         db, couple_id=couple.id, user_id=user.id,

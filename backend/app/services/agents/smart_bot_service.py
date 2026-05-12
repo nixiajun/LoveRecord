@@ -82,7 +82,7 @@ def _resolve_identity(identity: dict[str, str] | None) -> dict[str, str]:
     return {"name": name, "persona": persona}
 
 
-def _build_system(identity: dict[str, str], skill: str) -> str:
+def _build_system(identity: dict[str, str], skill: str, profile_context: str = "") -> str:
     """根据身份和技能构建系统提示词。"""
     name = identity["name"]
     persona = identity["persona"]
@@ -113,6 +113,8 @@ def _build_system(identity: dict[str, str], skill: str) -> str:
         "general_chat": f"\n## 当前模式：日常聊天\n自然对话即可。你是{name}，要保持人设。\n",
     }
     base += skill_prompts.get(skill, skill_prompts["general_chat"])
+    if profile_context:
+        base += f"\n\n## 情侣双方人物画像（参考这些性格特征来理解他们的语言风格）\n{profile_context}"
     return base
 
 
@@ -199,6 +201,7 @@ def smart_bot_answer(
     identity: dict[str, str] | None = None,
     now_override: str | None = None,
     conversation_history: list[dict[str, str]] | None = None,
+    profile_context: str = "",
 ) -> dict[str, Any]:
     t0 = time.monotonic()
     ident = _resolve_identity(identity)
@@ -207,7 +210,7 @@ def smart_bot_answer(
 
     evidence, skill, sql_result, qa_result = _gather_evidence(db, ctx, question, skill, now_override)
 
-    system = _build_system(ident, skill)
+    system = _build_system(ident, skill, profile_context)
     msgs = _build_messages(system, question, evidence, skill, conversation_history)
     llm = get_llm_provider()
     answer = llm.complete_chat(msgs)
@@ -238,6 +241,7 @@ def smart_bot_stream(
     identity: dict[str, str] | None = None,
     now_override: str | None = None,
     conversation_history: list[dict[str, str]] | None = None,
+    profile_context: str = "",
 ) -> Iterator[dict[str, Any]]:
     ident = _resolve_identity(identity)
     skill = _detect_skill_llm(question)
@@ -281,7 +285,7 @@ def smart_bot_stream(
                 skill = "data_query"
                 yield {"event": "status", "message": "数据查询成功"}
 
-    system = _build_system(ident, skill)
+    system = _build_system(ident, skill, profile_context)
     msgs = _build_messages(system, question, evidence, skill, conversation_history)
     llm = get_llm_provider()
     for chunk in llm.stream_chat(msgs):

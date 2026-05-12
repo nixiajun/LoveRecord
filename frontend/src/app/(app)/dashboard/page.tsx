@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { MemorialTicker } from "@/components/memorial-ticker";
 import { SmartBotPanel } from "@/components/smart-bot-panel";
+import { SpeakerProfileCards } from "@/components/speaker-profile-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api";
 
@@ -72,6 +73,8 @@ export default function DashboardPage() {
 
       {/* 智能助理 */}
       <SmartBotPanel />
+
+      <SpeakerProfileCards />
 
       {/* 最近动态 */}
       <div className="grid gap-4 md:grid-cols-2">
